@@ -18,6 +18,7 @@ model Material {
   manufacturerId Int
   location       String
   filename       String // for EPDs
+  type           String // e.g. timber, concrete
 }
 
 model Manufacturer {
