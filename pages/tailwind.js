@@ -273,15 +273,15 @@ export default function Example() {
 
           <main className="flex-1">
             <div className="py-6">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+              <div className="mx-auto max-w-full px-4 sm:px-6 md:px-8">
                 <h1 className="text-2xl font-semibold text-gray-900">Results</h1>
               </div>
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+              <div className="mx-auto max-w-full px-4 sm:px-6 md:px-8">
                 {/* Replace with your content */}
                 <div className="mt-8 flex flex-col">
-                    <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div className="inline-block min-w-full py-2 align-middle">
+                        <div className="overflow-hidden shadow-sm ring-1 ring-black ring-opacity-5">
                         <table className="min-w-full divide-y divide-gray-300">
                             <thead className="bg-gray-50">
                             <tr>
