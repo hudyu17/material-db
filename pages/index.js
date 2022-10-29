@@ -14,6 +14,7 @@
   ```
 */
 import { Fragment, useState } from 'react'
+import router from 'next/router'
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -23,6 +24,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import Link from 'next/link'
 
 const currencies = ['CAD', 'USD', 'AUD', 'EUR', 'GBP']
 const navigation = {
@@ -165,6 +167,17 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const searchTerm = event.target.search.value;
+  // console.log(searchTerm)
+  // router.push('/search/')
+  router.push({
+    pathname: '/search/[id]',
+    query: { id: searchTerm },
+  })
+}
+
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -280,7 +293,8 @@ export default function Home() {
                   <div className="flex h-16 items-center justify-between">
                     {/* Logo (lg+) */}
                     <div className="hidden lg:flex lg:flex-1 lg:items-center">
-                      <a href="#">
+                      <Link href="/">
+                      <a>
                         <span className="sr-only">Your Company</span>
                         <img
                           className="h-8 w-auto"
@@ -288,6 +302,7 @@ export default function Home() {
                           alt=""
                         />
                       </a>
+                      </Link>
                     </div>
 
                     <div className="hidden h-full lg:flex">
@@ -425,7 +440,7 @@ export default function Home() {
           <p className="mt-4 text-xl text-white">
             Your source for sustainable building materials.
           </p>
-          <div className="w-full">
+          <form className="w-full" onSubmit={handleSubmit}>
             <label htmlFor="search" className="sr-only">
               Search
             </label>
@@ -440,8 +455,8 @@ export default function Home() {
                 type="search"
                 name="search"
               />
-            </div>
-          </div>
+            </div>   
+          </form>
         </div>
       </div>
 
