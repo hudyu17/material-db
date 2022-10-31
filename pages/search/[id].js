@@ -1,9 +1,11 @@
 import router from "next/router"
 import { Fragment, useState } from 'react'
-import { Disclosure, Menu, Transition, Dialog } from '@headlessui/react'
+import { Disclosure, Menu, Transition, Dialog, Switch } from '@headlessui/react'
 import { MagnifyingGlassIcon, ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from "next/link"
+
+import { getAllMaterials } from "../../lib/db/material"
 
 const user = {
   name: 'Tom Cook',
@@ -22,17 +24,10 @@ const userNavigation = [
   { name: 'Sign out', href: '#' },
 ]
 
-const people = [
-    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' },
-    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' },
-    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' },
-    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' },
-  ]
-
 const filters = [
   {
-    id: 'location',
-    name: 'Location',
+    id: 'colour',
+    name: 'Colour',
     options: [
       { value: 'white', label: 'White' },
       { value: 'beige', label: 'Beige' },
@@ -41,8 +36,8 @@ const filters = [
     ],
   },
   {
-    id: 'category',
-    name: 'Category',
+    id: 'location',
+    name: 'Location',
     options: [
       { value: 'new-arrivals', label: 'All New Arrivals' },
       { value: 'tees', label: 'Tees' },
@@ -81,15 +76,24 @@ export async function getServerSideProps(context) {
     const searchId = context.query.id
     
     // TODO: query db with searchId or search term 
+    // dummy query to return all materials
+    const materials = await getAllMaterials()
+    const jsonMaterials = JSON.stringify(materials)
 
     // returning the id for now, will change
     return {
-      props: {searchId}, 
+      props: {
+        searchId,
+        jsonMaterials
+      }, 
     }
   }
 
-export default function Result({searchId}) {
+export default function Result({searchId, jsonMaterials}) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [enabled, setEnabled] = useState(true)
+  const materials = JSON.parse(jsonMaterials)
+  // console.log(jsonMaterials)
 
   return (
     <>
@@ -387,6 +391,34 @@ export default function Result({searchId}) {
 
               <div className="hidden lg:block">
                 <form className="space-y-3 pb-10">
+                <Switch.Group as="div" className="flex items-center pb-7">
+                <Switch
+                  checked={enabled}
+                  onChange={setEnabled}
+                  className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  <span className="sr-only">Use setting</span>
+                  <span aria-hidden="true" className="pointer-events-none absolute h-full w-full rounded-md bg-white" />
+                  <span
+                    aria-hidden="true"
+                    className={classNames(
+                      enabled ? 'bg-indigo-600' : 'bg-gray-200',
+                      'pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out'
+                    )}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={classNames(
+                      enabled ? 'translate-x-5' : 'translate-x-0',
+                      'pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out'
+                    )}
+                  />
+                </Switch>
+                    <Switch.Label as="span" className="ml-3">
+                      <span className="text-sm font-medium text-gray-900">EPD Available</span>
+                      {/* <span className="text-sm text-gray-500"> (Save 10%)</span> */}
+                    </Switch.Label>
+                  </Switch.Group>
                   {filters.map((section, sectionIdx) => (
                     <div key={section.name} className={sectionIdx === 0 ? null : 'pt-10'}>
                       <fieldset>
@@ -410,6 +442,7 @@ export default function Result({searchId}) {
                       </fieldset>
                     </div>
                   ))}
+                  
                 </form>
               </div>
             </aside>
@@ -428,13 +461,13 @@ export default function Result({searchId}) {
                       Name
                     </th>
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Title
+                      Type
                     </th>
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Email
+                      Manufacturer
                     </th>
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Role
+                      Location
                     </th>
                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
                       <span className="sr-only">Edit</span>
@@ -442,17 +475,17 @@ export default function Result({searchId}) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {people.map((person) => (
-                    <tr key={person.email}>
+                  {materials.map((material) => (
+                    <tr key={material.id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {person.name}
+                        {material.name}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{person.title}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{person.email}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{person.role}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{material.type}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{material.manufacturer.name}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{material.location}</td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                          Edit<span className="sr-only">, {person.name}</span>
+                          Edit<span className="sr-only">, {material.name}</span>
                         </a>
                       </td>
                     </tr>
