@@ -1,11 +1,12 @@
 import router from "next/router"
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Disclosure, Menu, Transition, Dialog, Switch } from '@headlessui/react'
 import { MagnifyingGlassIcon, ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from "next/link"
 
-import { getAllMaterials } from "../../lib/db/material"
+import { getMaterialByFilter, getAllMaterials } from "../../lib/db/material"
+import { getMaterialByFilterTwo } from "../../lib/db/manufacturer"
 
 const user = {
   name: 'Tom Cook',
@@ -71,7 +72,20 @@ const handleSubmit = async (event) => {
   })
 }
 
-// Grab route param to persist as a prop
+// async function handleSelect(value, searchTerm) {
+//   // event.stopPropagation();
+//   // console.log(value)
+//   const filter = {
+//     name: 'concrete',
+//     location: 'canada',
+//     type: 'concrete'
+//   }
+//   // const newMaterials = await getMaterialByFilter(filter)
+//   // console.log(newMaterials)
+//   // const newMaterials = [{"id":2,"name":"Bad Concrete","manufacturerId":1,"location":"Canada","filename":"badconcrete_epd.pdf","type":"Concrete","manufacturer":{"id":1,"name":"Best Wood Co."}},{"id":3,"name":"Green Concrete","manufacturerId":1,"location":"Spain","filename":"greenconcrete_epd.pdf","type":"Concrete","manufacturer":{"id":1,"name":"Best Wood Co."}}]
+// }
+
+// Grab route param to persist as a prop, get results from a general query
 export async function getServerSideProps(context) {
     const searchId = context.query.id
     
@@ -79,7 +93,7 @@ export async function getServerSideProps(context) {
     // dummy query to return all materials
     const materials = await getAllMaterials()
     const jsonMaterials = JSON.stringify(materials)
-
+    // console.log(jsonMaterials)
     // returning the id for now, will change
     return {
       props: {
@@ -92,8 +106,23 @@ export async function getServerSideProps(context) {
 export default function Result({searchId, jsonMaterials}) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [enabled, setEnabled] = useState(true)
-  const materials = JSON.parse(jsonMaterials)
+  const [materials, setMaterials] = useState(JSON.parse(jsonMaterials))
+  
   // console.log(jsonMaterials)
+
+  const handleSelect = async(value) => {
+    // static filter for now, will be dynamic off value eventually
+    const filter = {
+      name: 'concrete',
+      location: 'canada',
+      type: 'concrete'
+    }
+    const newMaterials = await getMaterialByFilterTwo(filter)
+    // console.log(newMaterials)
+    // const newMaterials = [{"id":2,"name":"Bad Concrete","manufacturerId":1,"location":"Canada","filename":"badconcrete_epd.pdf","type":"Concrete","manufacturer":{"id":1,"name":"Best Wood Co."}},{"id":3,"name":"Green Concrete","manufacturerId":1,"location":"Spain","filename":"greenconcrete_epd.pdf","type":"Concrete","manufacturer":{"id":1,"name":"Best Wood Co."}}]
+    setMaterials(newMaterials) // set new state after re-querying db
+    console.log(materials)
+  }
 
   return (
     <>
@@ -432,6 +461,7 @@ export default function Result({searchId, jsonMaterials}) {
                                 defaultValue={option.value}
                                 type="checkbox"
                                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                onClick={() => handleSelect(option.value)}
                               />
                               <label htmlFor={`${section.id}-${optionIdx}`} className="ml-3 text-sm text-gray-600">
                                 {option.label}
